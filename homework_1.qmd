@@ -9,9 +9,9 @@ author: Joel Jojo
 
 This assignment covers the R methods/commands and operations which will be frequently used by a data scientist to analyze data and find meaningful observations.
 
-## 
+## Code and documentation
 
-##### The below code installs the package "pacman" which helps simplify package management by allowing to load, install and manage multiple packages easily.
+The below code installs the package "pacman" which helps simplify package management by allowing to load, install and manage multiple packages easily.
 
 ```{r}
 # First run this
@@ -174,20 +174,26 @@ The summary() function is used to summarize the values in a vector, data frame e
 
 -   NA values
 
-    of each column
+    of each column.
 
 ```{r}
 algae |> summary()
 ```
+
+data() function loads the penguins dataset which is often used for data analysis and visualization. The describe() function from the Hmisc package provides a comprehensive summary of the dataset including details such as mean, median, sd, frequency count, min, max etc.
 
 ```{r}
 data("penguins")
 penguins |> Hmisc::describe()
 ```
 
+The describe() function from the dlookr package is loaded here. Insights into the dataset's structure and distribution of variables can be found.
+
 ```{r}
 penguins |> dlookr::describe()
 ```
+
+This code calculates the mean of column NO3 and median of column A1 while using the summarise() function and ignoring NA values.
 
 ```{r}
 algae |>
@@ -195,11 +201,15 @@ algae |>
             medA1 = median(a1))
 ```
 
+This code will calculate the mean and median for each of the selected columns in the "algae" dataset (from "mxPH" to "Cl"), and the result will be a summary table showing these statistics for each column.
+
 ```{r}
 algae |>
   select(mxPH:Cl) |>
   summarise_all(list(mean, median), na.rm = TRUE)
 ```
+
+This code will calculate the variance for each of the selected columns "a1" through "a7" in the "algae" dataset.
 
 ```{r}
 algae |>
@@ -207,11 +217,15 @@ algae |>
   summarise_all(funs(var))
 ```
 
+This code will calculate both the minimum and maximum values for each of the selected columns "a1" through "a7" in the "algae" dataset.
+
 ```{r}
 algae |>
   select(a1:a7) |>
   summarise_all(c("min", "max"))
 ```
+
+This code will generate a summary table that includes two columns: "nObs," which represents the count of observations in each group, and "mA7," which represents the median of the "a7" column within each group, based on the "season" and "size" variables.
 
 ```{r}
 algae |>
@@ -219,17 +233,23 @@ algae |>
   summarise(nObs = n(), mA7 = median(a7))
 ```
 
+This code will generate a summary table that includes one column, "var," which represents the variance of the "bill_length_mm" within each group defined by the "species" variable. This allows you to analyze the variability of bill lengths among different penguin species in the dataset.
+
 ```{r}
 penguins |> 
   group_by(species) |>
   summarise(var = var(bill_length_mm, na.rm = TRUE))
 ```
 
+This code will generate a new dataset or table that includes one column named "var," which represents the quantiles (in this case, the median) of the "bill_length_mm" column within each group defined by the "species" variable. This allows you to see how the median bill length varies among different penguin species in the dataset.
+
 ```{r}
 penguins |>
   group_by(species) |>
   reframe(var = quantile(bill_length_mm, na.rm = TRUE))
 ```
+
+This code will provide a detailed description of the "bill_length_mm" column within each group defined by the "species" variable. This description may include statistics such as mean, median, standard deviation, quartiles, and various visualizations that help you understand the distribution of bill lengths among different penguin species in the dataset.
 
 ```{r}
 penguins |>
