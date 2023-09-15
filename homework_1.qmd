@@ -1,0 +1,238 @@
+---
+title: "homework_1"
+format: html
+editor: visual
+author: Joel Jojo
+---
+
+## Summary
+
+This assignment covers the R methods/commands and operations which will be frequently used by a data scientist to analyze data and find meaningful observations.
+
+## 
+
+##### The below code installs the package "pacman" which helps simplify package management by allowing to load, install and manage multiple packages easily.
+
+```{r}
+# First run this
+install.packages("pacman")
+```
+
+the p_load() function provided by pacman package helps load multiple packages in a single line
+
+```{r}
+library(pacman)
+
+p_load(dlookr,
+       DMwR2, # Data Mining with R functions
+       GGally, # Pair-wise plots using ggplot2
+       Hmisc, # Data analysis 
+       palmerpenguins, # Alternative to the Iris dataset
+       tidyverse) # Data wrangling, manipulation, visualization
+```
+
+The data() function helps load algae dataset from the "DMwR2" package.
+
+glimpse() function is used to load a concise summary of a dataset by displaying the structure, column names, data types etc.
+
+```{r}
+data(algae, package = "DMwR2")
+
+algae |> glimpse()
+```
+
+"algae\$a1" loads column a1 from the algae dataset.
+
+"\|\>" is a pipe operator which passes the result of the operation on the left to the function on the right.
+
+"mean()" calculates the mean/average of the values from column a1
+
+```{r}
+algae$a1 |>
+  mean()
+```
+
+median() calculates the median value from the values in column a1
+
+```{r}
+algae$a1 |>
+  median()
+```
+
+The below function calculates the mode of the values in a column.
+
+The unique values of the column x are fed into a vector ux, then using tabulate() function, the frequency of each unique value is found out. Finally, max() function finds out the value with the maximum frequncy which is then returned.
+
+```{r}
+Mode <- function(x, na.rm=FALSE){
+if(na.rm) x<-x[!is.na(x)]
+ux <- unique (x)
+return (ux[which.max(tabulate(match(x, ux)))])
+}
+
+algae$a2 |> Mode()
+```
+
+centralValue() function returns the median for numerical variable, or the mode for nominal variables.
+
+```{r}
+# Numerical variable
+algae$a1 |> centralValue()
+```
+
+```{r}
+# Nominal variable
+algae$speed |> centralValue()
+```
+
+var() function in R language computes the sample variance of a vector. It is the measure of how much value is away from the mean value.
+
+```{r}
+algae$a1 |> var()
+```
+
+sd() function calculates the standard deviation of a set of values
+
+```{r}
+algae$a1 |> sd()
+```
+
+range() function returns the minimum and maximum values from a given set of values
+
+```{r}
+algae$a1 |> range()
+```
+
+max() function returns the maximum value
+
+```{r}
+algae$a1 |> max()
+```
+
+min() function returns the minimum value
+
+```{r}
+algae$a1 |> min()
+```
+
+IQR() function is used to compute the interquartile range of a given object of numerical values
+
+```{r}
+algae$a1 |> IQR()
+```
+
+quantile() function calculates quantiles (percentiles) of a numeric vector. The smallest observation corresponds to a probability of 0 and the largest to a probability of 1
+
+```{r}
+algae$a1 |> quantile()
+```
+
+the below code will return the values that represent the 20th and 80th percentiles of the a1 column
+
+```{r}
+algae$a1 |> quantile(probs = c(0.2, 0.8))
+```
+
+The below function loads the purr package which has a variety of functions for working with data in an efficient manner. The algae dataset is passed on to check for the number of NA values in each column of the dataset which is then summed up to return the total number of NA values in the dataset.
+
+```{r}
+library(purrr)
+# Compute the total number of NA values in the dataset
+nas <- algae %>% 
+  purrr::map_dbl(~sum(is.na(.))) %>% 
+  sum()
+
+cat("The dataset contains ", nas, "NA values. \n")
+```
+
+The below code is used to find the number of rows with incomplete or missing value. summarise_all() function applies a function to all columns of the dataset and in this case the \~!complete.cases(.) is applied to each column. The complete.cases() function checks each row for missing values and returns TRUE or FALSE based on it. The nrow() function counts the number of rows in the summarized dataset.
+
+```{r}
+# Compute the number of incomplete rows in the dataset
+incomplete_rows <- algae %>% 
+  summarise_all(~!complete.cases(.)) %>%
+  nrow()
+```
+
+This statement displays the number of incomplete rows in the entire dataset
+
+```{r}
+cat("The dataset contains ", incomplete_rows, "(out of ", nrow(algae),") incomplete rows. \n")
+```
+
+The summary() function is used to summarize the values in a vector, data frame etc. It always provides
+
+-    Min: The minimum value
+
+-   1st Qu: The value of the 1st quartile (25th percentile)
+
+-   Median: The median value
+
+-   3rd Qu: The value of the 3rd quartile (75th percentile)
+
+-   Max: The maximum value
+
+-   NA values
+
+    of each column
+
+```{r}
+algae |> summary()
+```
+
+```{r}
+data("penguins")
+penguins |> Hmisc::describe()
+```
+
+```{r}
+penguins |> dlookr::describe()
+```
+
+```{r}
+algae |>
+  summarise(avgNO3 = mean(NO3, na.rm=TRUE),
+            medA1 = median(a1))
+```
+
+```{r}
+algae |>
+  select(mxPH:Cl) |>
+  summarise_all(list(mean, median), na.rm = TRUE)
+```
+
+```{r}
+algae |>
+  select(a1:a7) |>
+  summarise_all(funs(var))
+```
+
+```{r}
+algae |>
+  select(a1:a7) |>
+  summarise_all(c("min", "max"))
+```
+
+```{r}
+algae |>
+  group_by(season, size) |>
+  summarise(nObs = n(), mA7 = median(a7))
+```
+
+```{r}
+penguins |> 
+  group_by(species) |>
+  summarise(var = var(bill_length_mm, na.rm = TRUE))
+```
+
+```{r}
+penguins |>
+  group_by(species) |>
+  reframe(var = quantile(bill_length_mm, na.rm = TRUE))
+```
+
+```{r}
+penguins |>
+  group_by(species) |>
+  dlookr::describe(bill_length_mm)
+```
